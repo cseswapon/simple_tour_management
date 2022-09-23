@@ -1,8 +1,16 @@
 const Tour = require("../modules/tour.module");
 
-exports.allTours = async () => {
-  return await Tour.find({});
-}
+exports.allTours = async (queries) => {
+  // console.log(queries.fields);
+  const totalTour = await Tour.countDocuments(queries);
+  const tour = await Tour.find({})
+    .skip(queries.skip)
+    .limit(queries.limit)
+    .select(queries.fields)
+    .sort(queries.sortBy);
+  const pageCount = Math.ceil(totalTour / queries.limit);
+  return { totalTour, pageCount,tour };
+};
 
 exports.singleView = async (id) => {
   return await Tour.findOne({ _id: id });

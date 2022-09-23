@@ -1,8 +1,27 @@
 const serviceTour = require("../services/tour.services");
 
 exports.allTourController = async (req, res, next) => {
-  const result = await serviceTour.allTours();
+  try {
+    const queries = {};
+    if (req.query.fields) {
+     const fields = req.query.fields.split(",").join(" ");
+     queries.fields = fields;
+    }
+    if (req.query.sort) {
+     const sortBy = req.query.sort.split(",").join(" ");
+     queries.sortBy = sortBy;
+    }
+    if (req.query.page) {
+      const { page = 1, limit = 2 } = req.query;
+      const skip = (page - 1) * parseInt(limit);
+      queries.skip = skip;
+      queries.limit = limit;
+    }
+  const result = await serviceTour.allTours(queries);
   res.status(200).send({ message: "all tour", data: result });
+  } catch (err) {
+    res.status(400).send({ message: "fail", error: err.message });
+  }
 };
 
 exports.tourSingleController = async (req, res, next) => {
